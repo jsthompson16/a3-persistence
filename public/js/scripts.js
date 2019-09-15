@@ -24,10 +24,10 @@ const updateOrder = (e) => {
     e.preventDefault();
 
     const updatedOrder = {
-        ordernum: document.getElementById("update-button").dataset.index,
         username: document.getElementById("update-username").value,
         topping1: document.getElementById("update-topping1").value,
-        topping2: document.getElementById("update-topping2").value
+        topping2: document.getElementById("update-topping2").value,
+        id: parseInt(document.getElementById("update-id").value)
     };
 
     const body = JSON.stringify(updatedOrder);
@@ -65,7 +65,7 @@ const fetchCurrentOrders = async function() {
         row += (`<td> <button id="update-button-${i}" class="table-button" style="font-size: 1vw" onclick="viewUpdateForm(${i})" data-string=`
             + encodeURIComponent(orderString) +
             `>Edit</button> </td>\n`);
-        row += (`<td> <button id="delete-button-${i}" class="table-button" style="font-size: 1vw" onclick="deleteOrder(${i})">Delete</button> </td>\n`);
+        row += (`<td> <button id="delete-button-${i}" class="table-button" style="font-size: 1vw" onclick="deleteOrder(${currentOrder.id})">Delete</button> </td>\n`);
         row += '</tr>';
         HTMLDiv.innerHTML += row;
     }
@@ -73,9 +73,10 @@ const fetchCurrentOrders = async function() {
     return false;
 };
 
-const deleteOrder = function(num) {
-    const orderNum = {orderNum: num};
+const deleteOrder = function(orderid) {
+    const orderNum = {id: orderid};
     const body = JSON.stringify(orderNum);
+    debugger
     fetch( '/delete', {
         method:'POST',
         body
@@ -111,6 +112,7 @@ const viewUpdateForm = function(num) {
     document.getElementById("update-username").value = order.username;
     document.getElementById("update-topping1").value = order.topping1;
     document.getElementById("update-topping2").value = order.topping2;
+    document.getElementById("update-id").value = order.id;
 
     return false;
 };

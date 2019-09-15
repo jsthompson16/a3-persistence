@@ -4,25 +4,22 @@
       "username": "Jarod Thompson",
       "topping1": "Pepperoni",
       "topping2": "Bacon",
-      "price": 17
+      "price": 16,
+      "id": 0
     },
     {
       "username": "Tom Gibbia",
       "topping1": "Sausage",
       "topping2": "Green Pepper",
-      "price": 15
+      "price": 15,
+      "id": 1
     },
     {
       "username": "Patty Alzaibak",
       "topping1": "Pepperoni",
       "topping2": "Garlic",
-      "price": 14
-    },
-    {
-      "username": "arathorrn",
-      "topping1": "CBSKKCAS",
-      "topping2": "bkchkakcv",
-      "price": 16
+      "price": 16,
+      "id": 3
     }
   ]
 }

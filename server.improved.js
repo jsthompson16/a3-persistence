@@ -56,7 +56,8 @@ app.post("/submit", function(req, res) {
       'username': newOrder.username,
       'topping1': newOrder.topping1,
       'topping2': newOrder.topping2,
-      'price': orderPrice
+      'price': orderPrice,
+      'id': db.get('users').size().value() + 1
     };
 
     db.get( 'users' ).push(order).write();
@@ -74,25 +75,13 @@ app.post("/update", function(req, res) {
   });
 
   req.on( 'end', function() {
-    const oldOrder = JSON.parse(dataString);
-    const newPrice = calcPrice(oldOrder.topping1, oldOrder.topping2);
-
-/*    const updatedOrder = {
-      'username': oldOrder.username,
-      'topping1': oldOrder.topping1,
-      'topping2': oldOrder.topping2,
-      'price': newPrice
-    };
-
- */
-
-    //appdata.splice(oldOrder.index, 1, updatedOrder);
-    const index = oldOrder.index;
-    const userlocation = 'users[' + index + ']';
-    console.log(userlocation);
-    db.get(userlocation)
-        .assign({ username: oldOrder.username, topping1: oldOrder.topping1,
-                  topping2: oldOrder.topping2, price: newPrice})
+    const updatedOrder = JSON.parse(dataString);
+    const newPrice = calcPrice(updatedOrder.topping1, updatedOrder.topping2);
+    console.log(updatedOrder);
+    db.get('users')
+        .find({ id: updatedOrder.id })
+        .assign({ username: updatedOrder.username, topping1: updatedOrder.topping1,
+                  topping2: updatedOrder.topping2, price: newPrice})
         .write();
 
     res.writeHead( 200, "OK", {'Content-Type': 'text/plain' });
@@ -110,11 +99,9 @@ app.post("/delete", function(req, res) {
   req.on( 'end', function() {
     const deleteThisOrder = JSON.parse(dataString);
 
-    //appdata.splice(deleteThisOrder.orderNum, 1);
-    console.log(deleteThisOrder);
     db.get('users')
-        .remove(deleteThisOrder)
-        .value();
+        .remove({ id: deleteThisOrder.id })
+        .write();
 
     res.writeHead( 200, "OK", {'Content-Type': 'text/plain' });
     res.end();
