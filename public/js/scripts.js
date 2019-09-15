@@ -45,7 +45,7 @@ const updateOrder = (e) => {
 const fetchCurrentOrders = async function() {
     const response = await fetch('/orders', {method: 'GET'});
     const data = await response.json();
-    const orders = data.data;
+    const orders = data.users;
 
     let HTMLDiv = document.getElementById("orders");
 

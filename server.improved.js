@@ -3,13 +3,14 @@ const express = require("express"),
     http = require("http"),
     app = express(),
     port = (process.env.PORT || 3000),
+    low = require('lowdb'),
+    FileSync = require('lowdb/adapters/FileSync'),
     mime = require("mime");
 
-const appdata = [
-  { 'username': 'Jarod Thompson', 'topping1': 'Pepperoni', 'topping2': 'Bacon', 'price': 17 },
-  { 'username': 'Tom Gibbia', 'topping1': 'Sausage', 'topping2': 'Green Pepper', 'price': 15 },
-  { 'username': 'Patty Alzaibak', 'topping1': 'Pepperoni', 'topping2': 'Garlic', 'price': 14 }
-];
+const adapter = new FileSync('db.json');
+const db = low( adapter );
+
+db.defaults({ users:[] }).write();
 
 app.use(express.static(path.join(__dirname + "/public")));
 
@@ -34,7 +35,9 @@ app.get("/js/scripts.js", function(req, res) {
 });
 
 app.get("/orders", function(req, res) {
-  sendOrderData(res, appdata);
+  const state = db.getState();
+  const str = JSON.stringify(state, null, 2);
+  sendOrderData(res, str);
   console.log("Orders have been loaded");
 });
 
@@ -56,7 +59,7 @@ app.post("/submit", function(req, res) {
       'price': orderPrice
     };
 
-    appdata.push(order);
+    db.get( 'users' ).push(order).write();
 
     res.writeHead(200, "OK", {'Content-Type': 'text/plain'});
     res.end();
@@ -74,14 +77,23 @@ app.post("/update", function(req, res) {
     const oldOrder = JSON.parse(dataString);
     const newPrice = calcPrice(oldOrder.topping1, oldOrder.topping2);
 
-    const updatedOrder = {
+/*    const updatedOrder = {
       'username': oldOrder.username,
       'topping1': oldOrder.topping1,
       'topping2': oldOrder.topping2,
       'price': newPrice
     };
 
-    appdata.splice(oldOrder.index, 1, updatedOrder);
+ */
+
+    //appdata.splice(oldOrder.index, 1, updatedOrder);
+    const index = oldOrder.index;
+    const userlocation = 'users[' + index + ']';
+    console.log(userlocation);
+    db.get(userlocation)
+        .assign({ username: oldOrder.username, topping1: oldOrder.topping1,
+                  topping2: oldOrder.topping2, price: newPrice})
+        .write();
 
     res.writeHead( 200, "OK", {'Content-Type': 'text/plain' });
     res.end();
@@ -97,7 +109,12 @@ app.post("/delete", function(req, res) {
 
   req.on( 'end', function() {
     const deleteThisOrder = JSON.parse(dataString);
-    appdata.splice(deleteThisOrder.orderNum, 1);
+
+    //appdata.splice(deleteThisOrder.orderNum, 1);
+    console.log(deleteThisOrder);
+    db.get('users')
+        .remove(deleteThisOrder)
+        .value();
 
     res.writeHead( 200, "OK", {'Content-Type': 'text/plain' });
     res.end();
@@ -112,7 +129,7 @@ server.listen(port, function () {
 const sendOrderData = function( response, orders ) {
   const type = mime.getType(orders);
   response.writeHead(200, { 'Content-Type': type });
-  response.write(JSON.stringify({ data: orders }));
+  response.write(orders);
   response.end();
 };
 
