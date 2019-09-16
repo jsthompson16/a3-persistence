@@ -9,15 +9,46 @@ const express = require("express"),
     passport  = require( 'passport' ),
     Local     = require( 'passport-local' ).Strategy,
     bodyParser= require( 'body-parser' ),
+    helmet = require('helmet'),
+    morgan = require('morgan'),
+    responseTime = require('response-time'),
+    StatsD = require('node-statsd'),
     mime = require("mime");
 
 const adapter = new FileSync('db.json');
 const db = low( adapter );
+const stats = new StatsD();
 
 db.defaults({ users: [], orders: [] }).write();
 
+/*
+for(let i = 0; i < db.get('orders').size().value(); i++) {
+  const orderlocation = 'orders[' + i + ']';
+  const order = db.get(orderlocation).value();
+  if (order.createdinSession === true) {
+    db.get(orderlocation)
+        .assign({ createdinSession: false})
+        .write();
+  }
+}
+
+ */
+
 app.use(express.static(path.join(__dirname + "/public")));
 app.use(bodyParser.json());
+app.use(helmet());
+app.use(morgan('combined'));
+
+stats.socket.on('error', function (error) {
+  console.error(error.stack)
+});
+
+app.use(responseTime(function (req, res, time) {
+  var stat = (req.method + req.url).toLowerCase()
+      .replace(/[:.]/g, '')
+      .replace(/\//g, '_');
+  stats.timing(stat, time)
+}));
 
 app.get("/", function(req, res) {
   res.sendFile(path.join(__dirname + "/public/index.html"));

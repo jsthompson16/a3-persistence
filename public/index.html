@@ -125,11 +125,15 @@
           <button id="view-orders-button">View your order</button>
         </div>
 
+        <!-- Canvas for pizza picture -->
+        <canvas id="mycanvas"></canvas>
+
       </main>
     </div>
   </body>
 
   <script src="./js/scripts.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/5.1.2/pixi.min.js"></script>
 
   <script>
 
@@ -155,6 +159,38 @@
     const currentOrdersLink = document.getElementById( 'current-orders-link' );
     currentOrdersLink.onclick = viewOrderTable;
   }
+
+  </script>
+
+  <script>
+
+    const canvas = document.getElementById("mycanvas");
+
+    const game = new PIXI.Application({
+      view: canvas,
+      width: 400,
+      height: 280,
+      antialias: true
+    });
+
+    const texture = PIXI.Texture.from("../img/pizza.jpg");
+
+    const tilingSprite = new PIXI.TilingSprite(
+            texture,
+            game.screen.width,
+            game.screen.height,
+    );
+    game.stage.addChild(tilingSprite);
+
+    tilingSprite.position.x = 0;
+    tilingSprite.position.y = 0;
+    tilingSprite.tilePosition.x = 0;
+    tilingSprite.tilePosition.y = 0;
+
+    game.ticker.add(() => {
+      tilingSprite.tilePosition.x -= 0.128;
+    });
+
 
   </script>
 </html>

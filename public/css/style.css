@@ -93,6 +93,17 @@ form {
     flex-direction: column;
 }
 
+#mycanvas {
+    position: relative;
+    display: block;
+    margin-top: 20px;
+    left: 40%;
+    top: 50%;
+    justify-content: center;
+    text-align: center;
+    flex-direction: column;
+}
+
 label, button{
     font-family: 'Cambria', sans-serif;
     font-size: 20px;
