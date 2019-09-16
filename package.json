@@ -9,6 +9,12 @@
   "dependencies": {
     "express": "^4.17.1",
     "lowdb": "^1.0.0",
-    "mime": "^2.4.4"
+    "mime": "^2.4.4",
+    "passport": "^0.4.0",
+    "passport-local": "^1.0.0",
+    "body-parser": "latest"
+  },
+  "devDependencies": {
+    "express-session": "^1.16.2"
   }
 }

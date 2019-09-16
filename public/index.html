@@ -26,6 +26,25 @@
         </div>
       </header>
       <main>
+        <div id="login">
+          <h2>Please login.</h2>
+          <h3>If you haven't logged in before, this will create your username and password.</h3>
+          <form action="">
+            <div class="input">
+              <label for="login-username" class="label">Username:</label>
+              <input type='text' id='login-username' required>
+            </div>
+
+            <div class="input">
+              <label for="password" class="label">Password:</label>
+              <input type='text' id='password' required>
+            </div>
+
+            <div id="login-button">
+              <button>Login</button>
+            </div>
+          </form>
+        </div>
         <!-- Links to different pages -->
         <div class="navPane">
           <nav class="link">
@@ -126,6 +145,9 @@
 
     const viewCurrentOrdersButton = document.getElementById( 'view-orders-button' );
     viewCurrentOrdersButton.onclick = viewOrderTable;
+
+    const loginButton = document.getElementById( 'login-button' );
+    loginButton.onclick = login;
 
     const newOrderLink = document.getElementById( 'new-order-link' );
     newOrderLink.onclick = viewOrderForm;

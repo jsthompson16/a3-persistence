@@ -1,5 +1,5 @@
 {
-  "users": [
+  "orders": [
     {
       "username": "Jarod Thompson",
       "topping1": "Pepperoni",
@@ -20,6 +20,12 @@
       "topping2": "Garlic",
       "price": 16,
       "id": 3
+    }
+  ],
+  "users": [
+    {
+      "username": "arathorrn",
+      "password": "hello"
     }
   ]
 }

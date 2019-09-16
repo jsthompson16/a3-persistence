@@ -5,14 +5,19 @@ const express = require("express"),
     port = (process.env.PORT || 3000),
     low = require('lowdb'),
     FileSync = require('lowdb/adapters/FileSync'),
+    session   = require( 'express-session' ),
+    passport  = require( 'passport' ),
+    Local     = require( 'passport-local' ).Strategy,
+    bodyParser= require( 'body-parser' ),
     mime = require("mime");
 
 const adapter = new FileSync('db.json');
 const db = low( adapter );
 
-db.defaults({ users:[] }).write();
+db.defaults({ users: [], orders: [] }).write();
 
 app.use(express.static(path.join(__dirname + "/public")));
+app.use(bodyParser.json());
 
 app.get("/", function(req, res) {
   res.sendFile(path.join(__dirname + "/public/index.html"));
@@ -31,18 +36,15 @@ app.get("/img/:filename", function(req, res) {
 
 app.get("/js/scripts.js", function(req, res) {
   res.sendFile(path.join(__dirname + "/js/scripts.js"));
-  console.log("Scripts have been loaded");
 });
 
 app.get("/orders", function(req, res) {
   const state = db.getState();
   const str = JSON.stringify(state, null, 2);
   sendOrderData(res, str);
-  console.log("Orders have been loaded");
 });
 
 app.post("/submit", function(req, res) {
-  console.log("Started to submit new request");
   let dataString = '';
   req.on( 'data', function( data ) {
     dataString += data
@@ -57,10 +59,10 @@ app.post("/submit", function(req, res) {
       'topping1': newOrder.topping1,
       'topping2': newOrder.topping2,
       'price': orderPrice,
-      'id': db.get('users').size().value() + 1
+      'id': db.get('orders').size().value() + 1
     };
 
-    db.get( 'users' ).push(order).write();
+    db.get( 'orders' ).push(order).write();
 
     res.writeHead(200, "OK", {'Content-Type': 'text/plain'});
     res.end();
@@ -68,7 +70,6 @@ app.post("/submit", function(req, res) {
 });
 
 app.post("/update", function(req, res) {
-  console.log("Started to update request");
   let dataString = '';
   req.on( 'data', function( data ) {
     dataString += data
@@ -77,8 +78,7 @@ app.post("/update", function(req, res) {
   req.on( 'end', function() {
     const updatedOrder = JSON.parse(dataString);
     const newPrice = calcPrice(updatedOrder.topping1, updatedOrder.topping2);
-    console.log(updatedOrder);
-    db.get('users')
+    db.get('orders')
         .find({ id: updatedOrder.id })
         .assign({ username: updatedOrder.username, topping1: updatedOrder.topping1,
                   topping2: updatedOrder.topping2, price: newPrice})
@@ -90,7 +90,6 @@ app.post("/update", function(req, res) {
 });
 
 app.post("/delete", function(req, res) {
-  console.log("Started to delete request");
   let dataString = '';
   req.on( 'data', function( data ) {
     dataString += data
@@ -99,7 +98,7 @@ app.post("/delete", function(req, res) {
   req.on( 'end', function() {
     const deleteThisOrder = JSON.parse(dataString);
 
-    db.get('users')
+    db.get('orders')
         .remove({ id: deleteThisOrder.id })
         .write();
 
@@ -107,6 +106,47 @@ app.post("/delete", function(req, res) {
     res.end();
   })
 });
+
+const myLocalStrategy = function(username, password, done) {
+  const user = db.get('users').find({ username: username}).value();
+
+  if (user === undefined) {
+    return done( null, false, { message: 'user not found'});
+  }
+  else if (user.password === password) {
+    return done( null, { username, password });
+  }
+  else {
+    return done( null, false, { message: 'incorrect password'});
+  }
+};
+
+passport.use( new Local( myLocalStrategy ) );
+
+passport.serializeUser( (user, done) => done( null, user.username));
+
+passport.deserializeUser( (username, done) => {
+  const user = db.get('users').find({ username: username}).value();
+
+  if ( user !== undefined) {
+    done( null, user);
+  }
+  else {
+    done( null, false, { message: 'user not found; session not restored'})
+  }
+});
+
+app.use( session({ secret:'cats cats cats', resave:false, saveUninitialized:false }) );
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.post(
+    '/login',
+    passport.authenticate( 'local'),
+    function( req, res ) {
+      res.json({status: true})
+    }
+);
 
 let server = http.createServer(app);
 server.listen(port, function () {

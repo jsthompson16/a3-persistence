@@ -45,7 +45,7 @@ const updateOrder = (e) => {
 const fetchCurrentOrders = async function() {
     const response = await fetch('/orders', {method: 'GET'});
     const data = await response.json();
-    const orders = data.users;
+    const orders = data.orders;
 
     let HTMLDiv = document.getElementById("orders");
 
@@ -76,7 +76,7 @@ const fetchCurrentOrders = async function() {
 const deleteOrder = function(orderid) {
     const orderNum = {id: orderid};
     const body = JSON.stringify(orderNum);
-    debugger
+
     fetch( '/delete', {
         method:'POST',
         body
@@ -121,4 +121,28 @@ const resetForm = () => {
     document.getElementById("username").value = "";
     document.getElementById("topping1").value = "";
     document.getElementById("topping2").value = "";
+};
+
+const login = function (e) {
+    e.preventDefault();
+
+    const loginInfo = {
+        username: document.getElementById("login-username").value,
+        password: document.getElementById("password").value
+    };
+
+    const body = JSON.stringify(loginInfo);
+    fetch( '/login', {
+        method:'POST',
+        body,
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then( res => res.json())
+    .then( console.log )
+    .then( function( response ) {
+        document.getElementById('new-order-link').style.display = "flex";
+        document.getElementById('current-orders-link').style.display = "flex";
+        document.getElementById('login').style.display = "none";
+        viewOrderForm();
+    });
 };

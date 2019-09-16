@@ -22,6 +22,14 @@
     display: none;
 }
 
+#new-order-link {
+    display: none;
+}
+
+#current-orders-link {
+    display: none;
+}
+
 #order-confirmed {
     display: none;
     flex-direction: column;
@@ -69,6 +77,15 @@ form {
 
 #form {
     position: relative;
+    display: none;
+    justify-content: center;
+    width: 100%;
+    text-align: center;
+    flex-direction: column;
+}
+
+#login {
+    position: relative;
     display: flex;
     justify-content: center;
     width: 100%;
@@ -85,4 +102,8 @@ h2 {
     font-family: 'Cambria', sans-serif;
     text-align: center;
     font-size: 20px;
+}
+
+h3 {
+    font-size: 15px;
 }
