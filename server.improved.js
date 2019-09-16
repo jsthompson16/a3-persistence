@@ -18,6 +18,7 @@ const express = require("express"),
 const adapter = new FileSync('db.json');
 const db = low( adapter );
 const stats = new StatsD();
+let currentUser = "";
 
 db.defaults({ users: [], orders: [] }).write();
 
@@ -90,7 +91,8 @@ app.post("/submit", function(req, res) {
       'topping1': newOrder.topping1,
       'topping2': newOrder.topping2,
       'price': orderPrice,
-      'id': db.get('orders').size().value() + 1
+      'id': db.get('orders').size().value() + 1,
+      'createdBy': currentUser
     };
 
     db.get( 'orders' ).push(order).write();
@@ -142,9 +144,17 @@ const myLocalStrategy = function(username, password, done) {
   const user = db.get('users').find({ username: username}).value();
 
   if (user === undefined) {
-    return done( null, false, { message: 'user not found'});
+    const newUser = {
+      'username': username,
+      'password': password,
+    };
+
+    db.get( 'users' ).push(newUser).write();
+    currentUser = username;
+    return done( null, { username, password });
   }
   else if (user.password === password) {
+    currentUser = username;
     return done( null, { username, password });
   }
   else {

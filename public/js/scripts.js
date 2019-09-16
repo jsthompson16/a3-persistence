@@ -57,17 +57,19 @@ const fetchCurrentOrders = async function() {
     for (let i = 0; i < orders.length; i++) {
         const currentOrder = orders[i];
         const orderString = JSON.stringify(orders[i]);
-        let row = '<tr>\n';
-        row += (`<td> ${currentOrder.username} </td>\n`);
-        row += (`<td> ${currentOrder.topping1} </td>\n`);
-        row += (`<td> ${currentOrder.topping2} </td>\n`);
-        row += (`<td> ${currentOrder.price} </td>\n`);
-        row += (`<td> <button id="update-button-${i}" class="table-button" style="font-size: 1vw" onclick="viewUpdateForm(${i})" data-string=`
-            + encodeURIComponent(orderString) +
-            `>Edit</button> </td>\n`);
-        row += (`<td> <button id="delete-button-${i}" class="table-button" style="font-size: 1vw" onclick="deleteOrder(${currentOrder.id})">Delete</button> </td>\n`);
-        row += '</tr>';
-        HTMLDiv.innerHTML += row;
+        if (currentOrder.createdBy === document.getElementById('current-username').value) {
+            let row = '<tr>\n';
+            row += (`<td> ${currentOrder.username} </td>\n`);
+            row += (`<td> ${currentOrder.topping1} </td>\n`);
+            row += (`<td> ${currentOrder.topping2} </td>\n`);
+            row += (`<td> ${currentOrder.price} </td>\n`);
+            row += (`<td> <button id="update-button-${i}" class="table-button" style="font-size: 1vw" onclick="viewUpdateForm(${i})" data-string=`
+                + encodeURIComponent(orderString) +
+                `>Edit</button> </td>\n`);
+            row += (`<td> <button id="delete-button-${i}" class="table-button" style="font-size: 1vw" onclick="deleteOrder(${currentOrder.id})">Delete</button> </td>\n`);
+            row += '</tr>';
+            HTMLDiv.innerHTML += row;
+        }
     }
 
     return false;
@@ -143,6 +145,7 @@ const login = function (e) {
         document.getElementById('new-order-link').style.display = "flex";
         document.getElementById('current-orders-link').style.display = "flex";
         document.getElementById('login').style.display = "none";
+        document.getElementById('current-username').value = loginInfo.username;
         viewOrderForm();
     });
 };

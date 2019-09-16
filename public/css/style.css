@@ -30,6 +30,10 @@
     display: none;
 }
 
+#current-username {
+    display: none;
+}
+
 #order-confirmed {
     display: none;
     flex-direction: column;
